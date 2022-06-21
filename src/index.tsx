@@ -37,6 +37,8 @@ export function Freshchat({
   ...rest
 }: FreshChatProps): JSX.Element | null {
   const [isWidgetOpen, setIsWidgetOpen] = React.useState(false)
+  const [firstLoad, setFirstLoad] = React.useState(true)
+  
   const UrlIcon =
     'https://firebasestorage.googleapis.com/v0/b/repfinder-450e2.appspot.com/o/chat.svg?alt=media&token=885c5d28-2165-4a24-a96c-c1b0c98fab3f'
 
@@ -45,18 +47,21 @@ export function Freshchat({
   const loadScript = () => {
     const id = 'freshchat-lib'
 
-    if (document.getElementById(id) || window.fcWidget) return
-
-    const script = document.createElement('script')
-    script.async = true
-    script.type = 'text/javascript'
-    script.src = 'https://wchat.freshchat.com/js/widget.js'
-    script.id = id
-    document.head.appendChild(script)
+  if (!(document.getElementById(id) || window.fcWidget)) {
+      console.log('no init chat so load script')
+      const script = document.createElement('script')
+      script.async = true
+      script.type = 'text/javascript'
+      script.src = 'https://wchat.freshchat.com/js/widget.js'
+      script.id = id
+      document.head.appendChild(script)
+    }
   }
 
   // Init FreshChat with the data passed in
-  const init = () => {
+const init = () => {
+    console.log('initialize new user')
+    console.log(rest)
     if (label) {
       if (!rest.config) {
         rest.config = {
@@ -74,12 +79,39 @@ export function Freshchat({
       }
     }
 
-    if (!rest.host) rest.host = 'https://wchat.freshchat.com'
+    if (!rest.host) {
+      rest.host = 'https://wchat.freshchat.com'
+    }
 
-    window.fcWidget.init({
-      ...rest
+    console.log('here')
+
+    window.fcWidget.user.get().then(function (result: any) {
+      console.log(result)
+      const userInfo = result.data;
+      const loggedInUser = userInfo.identifier
+
+      console.log("existing init user: " + loggedInUser)
+      console.log("logged in user: " + rest.externalId)
+
+      if ((loggedInUser !== rest.externalId) || (!loggedInUser && !rest.externalId && firstLoad)) {
+        console.log('trigger refresh user')
+        window.fcWidget.destroy();
+
+        window.fcWidget.init({
+          ...rest
+        })
+
+        setFirstLoad(false)
+      }
+    }).catch(function (err: any) {
+
+      window.fcWidget.init({
+        ...rest
+      })
+      console.log(err)
     })
   }
+
 
   const toggleWidget = () => {
     // hide button
