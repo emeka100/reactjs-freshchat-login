@@ -59,7 +59,8 @@ export function Freshchat({
   }
 
   // Init FreshChat with the data passed in
-const init = () => {
+async const init = () => {
+  try {
     console.log('initialize new user')
     console.log(rest)
     if (label) {
@@ -110,6 +111,11 @@ const init = () => {
       })
       console.log(err)
     })
+  
+      console.log('there')
+  }catch(err){
+    console.log(err)
+  }
   }
 
 
