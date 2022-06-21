@@ -26,7 +26,10 @@ export interface FreshchatStyles {
   color: string
 }
 
-export interface FreshChatProps extends FreshchatInitProps {
+export interface FreshChatProps extends Freshchat
+
+
+Props {
   label?: string
   ic_styles?: FreshchatStyles
 }
@@ -59,7 +62,7 @@ export function Freshchat({
   }
 
   // Init FreshChat with the data passed in
-async const init = () => {
+const init = () => {
   try {
     console.log('initialize new user')
     console.log(rest)
